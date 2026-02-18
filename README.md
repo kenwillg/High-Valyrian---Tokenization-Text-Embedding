@@ -38,13 +38,17 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
 - Special tokens: `<PAD>`, `<UNK>`, `<BOS>`, `<EOS>`
 - Vocab diurutkan berdasarkan frekuensi (descending)
 
-### 5. Embedding
-- File: `embedding.npy`
-- _TODO_
+### 5. Embedding ✅
+- Script: `embedding.py`
+- Output: `embedding.npy` (299×50, 116.8 KB), `embedding_meta.json`
+- Metode: Co-occurrence matrix → PPMI → SVD (50 dimensi)
+- Context window: 4
 
-### 6. Analysis
+### 6. Analysis ✅
 - File: `analysis.ipynb`
-- _TODO_
+- Pipeline terpadu: cleaning → tokenizer → vocab → embedding → analisis
+- Visualisasi: Top-20 chart, Zipf's Law, SVD decay, similarity heatmap, PCA 2D, t-SNE 2D
+- Ringkasan statistik lengkap
 
 ## Deliverables
 
@@ -55,8 +59,10 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
 | `tokenizer.py` | ✅ |
 | `vocab.json` | ✅ |
 | `encoded_tokens.csv` | ✅ |
-| `embedding.npy` | ⬜ |
-| `analysis.ipynb` | ⬜ |
+| `embedding.py` | ✅ |
+| `embedding.npy` | ✅ |
+| `embedding_meta.json` | ✅ |
+| `analysis.ipynb` | ✅ |
 | `README.md` | ✅ |
 
 ## How to Run
@@ -67,4 +73,7 @@ python clean_corpus.py
 
 # Tokenizer + vocab + encoding
 python tokenizer.py
+
+# Word embedding
+python embedding.py
 ```
