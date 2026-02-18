@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High Valyrian — Vocab Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a27;
+      --surface3: #222233;
+      --border: #2a2a3e;
+      --text: #e4e4ef;
+      --text-dim: #8888a0;
+      --accent: #7c5bf5;
+      --accent-glow: rgba(124, 91, 245, 0.25);
+      --accent2: #f59e0b;
+      --accent3: #10b981;
+      --special: #ef4444;
+      --punct: #3b82f6;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* --- Background effect --- */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(124, 91, 245, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* --- Header --- */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    header .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #e4e4ef 0%, #a78bfa 50%, #7c5bf5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* --- Stats bar --- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    /* --- Section titles --- */
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title .icon { font-size: 1.2rem; }
+
+    /* --- Search & Filter --- */
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .filter-btns {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      color: var(--text-dim);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* --- Sort --- */
+    .sort-controls {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .sort-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-right: 0.25rem;
+    }
+
+    /* --- Token grid --- */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 3rem;
+    }
+
+    .token-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .token-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      border-radius: 10px 0 0 10px;
+    }
+
+    .token-card.type-special::before { background: var(--special); }
+    .token-card.type-punct::before { background: var(--punct); }
+    .token-card.type-word::before { background: var(--accent3); }
+
+    .token-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(124, 91, 245, 0.12);
+    }
+
+    .token-card .token-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+      margin-bottom: 0.4rem;
+    }
+
+    .token-card.type-special .token-text { color: var(--special); }
+    .token-card.type-punct .token-text { color: var(--punct); }
+
+    .token-card .token-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .token-card .token-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      background: var(--accent-glow);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .token-card .token-freq {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* --- Freq bar --- */
+    .freq-bar-container {
+      margin-top: 0.5rem;
+      height: 3px;
+      background: var(--surface3);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .freq-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+      transition: width 0.4s ease;
+    }
+
+    /* --- Top tokens chart --- */
+    .chart-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 60px;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .bar-row .bar-token {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: right;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-row .bar-track {
+      height: 24px;
+      background: var(--surface3);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar-row .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent) 0%, #a78bfa 100%);
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      min-width: 2px;
+    }
+
+    .bar-row .bar-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    /* --- Detail modal --- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal .modal-token {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal .modal-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+
+    .modal .detail-item {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 0.75rem;
+    }
+
+    .modal .detail-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .modal .detail-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal .close-btn {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1.5rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal .close-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* --- Footer --- */
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* --- Responsive --- */
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.8rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .token-grid { grid-template-columns: repeat(2, 1fr); }
+      .bar-row { grid-template-columns: 80px 1fr 50px; }
+      .controls { flex-direction: column; }
+    }
+
+    /* --- No results --- */
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      grid-column: 1 / -1;
+    }
+
+    /* --- Scroll animation --- */
+    .token-card {
+      opacity: 0;
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">NLP Week 3 — Pradita University</div>
+      <h1>High Valyrian Vocab Explorer</h1>
+      <p>Interactive vocabulary & token ID mapping visualization — 299 tokens from a custom tokenizer pipeline</p>
+    </header>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <div class="chart-section">
+      <h2 class="section-title"><span class="icon">📊</span> Top 15 Most Frequent Tokens</h2>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+
+    <h2 class="section-title"><span class="icon">🗂️</span> Full Vocabulary</h2>
+
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search tokens..." autocomplete="off">
+      </div>
+      <div class="filter-btns">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="word">Words</button>
+        <button class="filter-btn" data-filter="special">Special</button>
+        <button class="filter-btn" data-filter="punct">Punct</button>
+      </div>
+      <div class="sort-controls">
+        <span class="sort-label">Sort:</span>
+        <button class="filter-btn active" data-sort="freq">Freq ↓</button>
+        <button class="filter-btn" data-sort="alpha">A→Z</button>
+        <button class="filter-btn" data-sort="id">ID ↑</button>
+      </div>
+    </div>
+
+    <div class="token-grid" id="token-grid"></div>
+
+    <footer>
+      Corpus: <a href="https://www.kaggle.com/datasets/viceriomarinowski/high-valyrian-corpus-from-game-of-thrones?resource=download" target="_blank">High Valyrian Corpus — Kaggle</a> · Built for NLP Assignment
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <script>
+    // ============================================================
+    // DATA — embedded from vocab.json + frequency data from tokenizer
+    // ============================================================
+    const VOCAB_DATA = {"<PAD>": 0, "<UNK>": 1, "<BOS>": 2, "<EOS>": 3, "se": 4, ".": 5, "jemo": 6, ",": 7, "zaldrīzoti": 8, "henujagon": 9, "issa": 10, "ōdrikagon": 11, "issi": 12, "skoros": 13, "perzys": 14, "dārys": 15, "ēlī": 16, "ūndanissis": 17, "gaomagon": 18, "hēdrȳ": 19, "syt": 20, "jemēle": 21, "jorrāelagon": 22, "jaelar": 23, "hen": 24, "hūlon": 25, "hēnkirī": 26, "belmon": 27, "drējotas": 28, "dāervosas": 29, "zaldrīzir": 30, "kostilus": 31, "ziry": 32, "jaelon": 33, "dāervon": 34, "iderēbza": 35, "sytilus": 36, "dāeri": 37, "kostos": 38, "pryjari": 39, "ivestragī": 40, "jorrāelis": 41, "jagon": 42, "skoriot": 43, "vējose": 44, "jaelagon": 45, "gaomis": 46, "glaes": 47, "drējoti": 48, "kirimvose": 49, "dāeris": 50, "dāeriot": 51, "vēzos": 52, "pōnta": 53, "qilōni": 54, "jēdagon": 55, "pōntalo": 56, "jēdās": 57, "avy": 58, "?": 59, "zūgagon": 60, "āeksio": 61, "drējagon": 62, "īlva": 63, "ōño": 64, "targaryen": 65, "hēnta": 66, "glēdrī": 67, "ryndāro": 68, "belma": 69, "daenarī": 70, "dōre": 71, "jaela": 72, "pryvella": 73, "tepagon": 74, "ælīrys": 75, "hēnkus": 76, "sīr": 77, "mērī": 78, "zaldrīzi": 79, "mēre": 80, "morghūljagon": 81, "symbe": 82, "jēdar": 83, "morghot": 84, "jevorion": 85, "muña": 86, "pyghor": 87, "ābrar": 88, "gūrotrirī": 89, "jēdrivībilātās": 90, "rūjagon": 91, "brōzma": 92, "jevilātās": 93, "kirimvi": 94, "kostas": 95, "ossēnagon": 96, "dāria": 97, "dārī": 98, "glaeson": 99, "gūrēbzi": 100, "jaelza": 101, "jemēbza": 102, "āegon": 103, "belmurti": 104, "ondor": 105, "sīrivalis": 106, "valyria": 107, "ȳdragon": 108, "iderēbzi": 109, "jaelzar": 110, "lēkia": 111, "qogror": 112, "tīkila": 113, "arlūni": 114, "daenerys": 115, "dāerēbzi": 116, "dārilaros": 117, "hēnkirzīr": 118, "jikās": 119, "jāhon": 120, "jēnagon": 121, "jōfari": 122, "māzis": 123, "zaldrīzīr": 124, "azantys": 125, "kessa": 126, "kesīr": 127, "kesīri": 128, "muñagon": 129, "onosor": 130, "vali": 131, "ñuhares": 132, "īlōnagon": 133, "alaric": 134, "aōhaerys": 135, "daoruni": 136, "dāeruni": 137, "hae": 138, "jevi": 139, "kesan": 140, "kostōha": 141, "pār": 142, "rūsī": 143, "syrzir": 144, "tolī": 145, "āeksi": 146, "ānogar": 147, "ēlīrī": 148, "ērinis": 149, "ēza": 150, "aegon": 151, "andahli": 152, "arlī": 153, "aōt": 154, "daor": 155, "dāerys": 156, "dōron": 157, "glaesagon": 158, "glȳrzi": 159, "gēlī": 160, "iderenna": 161, "ivestragon": 162, "iā": 163, "jevon": 164, "kesor": 165, "kesy": 166, "māzīlātās": 167, "onogār": 168, "rhaella": 169, "rijā": 170, "tolvī": 171, "zaldrīzotas": 172, "zyhys": 173, "æeksio": 174, "ñuho": 175, "āerys": 176, "ēngos": 177, "ōñosor": 178, "aōhaeot": 179, "belmurtās": 180, "belmurtī": 181, "dāeragon": 182, "gadis": 183, "hūnagon": 184, "jiorvār": 185, "jorun": 186, "jorūdan": 187, "jorūn": 188, "jōragor": 189, "kastās": 190, "kostigon": 191, "mirre": 192, "morghūlis": 193, "nykeles": 194, "onos": 195, "qilōn": 196, "rijēla": 197, "rūzīnon": 198, "sagon": 199, "sorzi": 200, "teptas": 201, "toli": 202, "vestretās": 203, "ynoma": 204, "zȳhaan": 205, "ñuhe": 206, "aeksio": 207, "aerys": 208, "ajomāri": 209, "ao": 210, "avytilzȳn": 211, "azantyr": 212, "aōhikagon": 213, "belmagon": 214, "belmāzma": 215, "brōza": 216, "bēlībza": 217, "daorys": 218, "drējīn": 219, "dāerves": 220, "eldoria": 221, "emagon": 222, "essos": 223, "gadīli": 224, "gadīlī": 225, "ghiscī": 226, "gōvilirose": 227, "gūrotriri": 228, "gūrēnna": 229, "gūrēñagon": 230, "henogon": 231, "hero": 232, "hāedar": 233, "hūbēntas": 234, "hūbēnti": 235, "hūro": 236, "idañe": 237, "iderēbāzma": 238, "iksan": 239, "ivestrilātās": 240, "ivestrī": 241, "jelmōt": 242, "jeme": 243, "jinēbagon": 244, "jiōrina": 245, "jāhor": 246, "jākēlot": 247, "jēda": 248, "jūnās": 249, "kelītīs": 250, "kepa": 251, "kesīrī": 252, "kivaroti": 253, "kostagon": 254, "lentrot": 255, "luaan": 256, "līrī": 257, "mazīlzi": 258, "mellyni": 259, "morghūlagon": 260, "muño": 261, "nykēlo": 262, "ondorion": 263, "pryjātās": 264, "prūmia": 265, "pōjor": 266, "pōjāzīr": 267, "pōntās": 268, "rijānagon": 269, "rijībi": 270, "rēbagon": 271, "rūdholī": 272, "rūsa": 273, "sēnagon": 274, "sīrys": 275, "targārio": 276, "tepan": 277, "tolvīr": 278, "valyrīha": 279, "valzār": 280, "vaoreznon": 281, "vestris": 282, "zaldrī": 283, "zentyssis": 284, "zentyssyssy": 285, "zijo": 286, "zȳhon": 287, "zȳhosy": 288, "ðāeri": 289, "ñuha": 290, "ābrōzi": 291, "āeksia": 292, "āeksion": 293, "īlos": 294, "īlvyzīr": 295, "ōrbari": 296, "ūndanys": 297, "ȳdra": 298};
+
+    const FREQ_DATA = {"<BOS>": 666, "ānogar": 4, "ziry": 115, "aōhaeot": 2, "se": 2764, "hēdrȳ": 206, "jaelagon": 73, "issi": 462, ".": 1595, "henujagon": 819, "hen": 153, "pryjari": 81, ",": 938, "daenarī": 25, "arlūni": 6, "ryndāro": 28, "ābrar": 12, "lēkia": 7, "īlōnagon": 5, "iā": 3, "pōnta": 57, "tolī": 4, "ondor": 8, "glaesagon": 3, "jemēle": 182, "iderēbza": 91, "issa": 737, "belma": 25, "hūnagon": 2, "jorrāelagon": 178, "daor": 3, "<EOS>": 666, "qilōni": 54, "ossēnagon": 10, "tolvī": 3, "dōre": 24, "gūrēbzi": 9, "hae": 4, "onogār": 3, "glēdrī": 29, "glȳrzi": 3, "rijā": 3, "zūgagon": 40, "glaes": 72, "tepagon": 21, "zaldrīzi": 17, "pār": 4, "sīr": 18, "dārī": 9, "vējose": 75, "rūjagon": 11, "ȳdragon": 8, "morghot": 13, "kesan": 4, "drējagon": 38, "ēlī": 237, "āeksi": 4, "kirimvose": 71, "mellyni": 1, "pyghor": 12, "valyria": 8, "mirre": 2, "valyrīha": 1, "zaldrīzir": 140, "āeksia": 1, "jinēbagon": 1, "essos": 1, "mēre": 16, "dāria": 9, "jōfari": 6, "skoros": 297, "?": 42, "toli": 2, "jēdar": 13, "morghūljagon": 14, "āegon": 9, "āeksio": 40, "ēza": 4, "targaryen": 31, "aōt": 3, "teptas": 2, "eldoria": 1, "hero": 1, "morghūlagon": 1, "alaric": 4, "qogror": 7, "ælīrys": 21, "pryvella": 21, "æeksio": 3, "avytilzȳn": 1, "jōragor": 2, "āeksion": 1, "mērī": 17, "daenerys": 6, "ñuho": 3, "ghiscī": 1, "ðāeri": 1, "glaeson": 9, "tīkila": 7, "aōhaerys": 4, "zȳhaan": 2, "rijībi": 1, "jorrāelis": 78, "gadīlī": 1, "avy": 43, "kepa": 1, "gaomagon": 210, "kessa": 5, "ajomāri": 1, "jikās": 6, "onos": 2, "hūbēnti": 1, "hūbēntas": 1, "zaldrīzoti": 878, "zaldrīzotas": 3, "ōdrikagon": 554, "rūsa": 1, "gaomis": 72, "ñuhe": 2, "skoriot": 75, "drējoti": 71, "drējotas": 141, "kostas": 10, "ūndanissis": 212, "kostilus": 120, "dāervon": 95, "dāervosas": 141, "dāerves": 1, "dāeri": 89, "dāeris": 69, "dāeriot": 68, "ȳdra": 1, "jiōrina": 1, "vaoreznon": 1, "pōntalo": 46, "jāhon": 6, "jelmōt": 1, "vestretās": 2, "dārys": 267, "targārio": 1, "lentrot": 1, "kesīri": 5, "perzys": 269, "onosor": 5, "māzis": 6, "ābrōzi": 1, "īlva": 34, "vali": 5, "jēdrivībilātās": 11, "aerys": 1, "kesor": 3, "hēnkus": 19, "jūnās": 1, "syt": 186, "zyhys": 3, "ērinis": 4, "rhaella": 3, "aōhikagon": 1, "morghūlis": 2, "jēdās": 44, "zȳhon": 1, "kastās": 2, "aegon": 3, "kesīrī": 1, "māzīlātās": 3, "jāhor": 1, "gēlī": 3, "līrī": 1, "ēlīrī": 4, "henogon": 1, "gadis": 2, "kelītīs": 1, "ao": 1, "ñuha": 1, "emagon": 1, "jaelar": 174, "ivestragī": 78, "jagon": 75, "hēnkirī": 150, "iderēbzi": 7, "vestris": 1, "belmurtī": 2, "jevi": 4, "valzār": 1, "daorys": 1, "idañe": 1, "jemo": 1173, "gōvilirose": 1, "ynoma": 2, "kivaroti": 1, "dōron": 3, "āerys": 3, "hāedar": 1, "kostōha": 4, "belmon": 148, "hūlon": 153, "rūsī": 4, "sytilus": 90, "zaldrī": 1, "gadīli": 1, "rijēla": 2, "iksan": 1, "rūzīnon": 2, "drējīn": 1, "ōrbari": 1, "belmāzma": 1, "brōza": 1, "vēzos": 68, "jēdagon": 53, "īlos": 1, "nykeles": 2, "kostos": 83, "ōño": 34, "mazīlzi": 1, "sorzi": 2, "arlī": 3, "kesīr": 5, "tepan": 1, "jaela": 21, "hēnkirzīr": 6, "sīrivalis": 8, "ivestragon": 3, "sēnagon": 1, "belmagon": 1, "rijānagon": 1, "jevorion": 12, "pōjāzīr": 1, "ondorion": 1, "zentyssis": 1, "muñagon": 5, "zaldrīzīr": 6, "īlvyzīr": 1, "jevilātās": 10, "azantys": 5, "ivestrī": 1, "iderēbāzma": 1, "rūdholī": 1, "gūrēnna": 1, "azantyr": 1, "tolvīr": 1, "zentyssyssy": 1, "andahli": 3, "jākēlot": 1, "jēda": 1, "sīrys": 1, "jorūdan": 2, "muño": 1, "aeksio": 1, "ēngos": 3, "jaelon": 98, "ñuhares": 5, "bēlībza": 1, "symbe": 14, "brōzma": 10, "ivestrilātās": 1, "dāeragon": 2, "kostigon": 2, "hēnta": 30, "iderenna": 3, "jēnagon": 6, "daoruni": 4, "kesy": 3, "syrzir": 4, "zijo": 1, "dāeruni": 4, "kirimvi": 10, "belmurti": 8, "belmurtās": 2, "ūndanys": 1, "nykēlo": 1, "dārilaros": 6, "jeme": 1, "jorūn": 2, "kostagon": 1, "jaelza": 9, "luaan": 1, "sagon": 2, "jemēbza": 9, "jorun": 2, "jiorvār": 2, "ōñosor": 3, "dāerys": 3, "dāerēbzi": 6, "jaelzar": 7, "muña": 12, "gūrēñagon": 1, "pryjātās": 1, "pōntās": 1, "jevon": 3, "rēbagon": 1, "zȳhosy": 1, "gūrotriri": 1, "gūrotrirī": 11, "qilōn": 2, "pōjor": 1, "prūmia": 1, "hūro": 1};
+
+    const SPECIAL = new Set(["<PAD>", "<UNK>", "<BOS>", "<EOS>"]);
+    const PUNCT = new Set([".", ",", "?", "!", ";", ":"]);
+
+    function getType(token) {
+      if (SPECIAL.has(token)) return 'special';
+      if (PUNCT.has(token)) return 'punct';
+      return 'word';
+    }
+
+    // Build token list with all metadata
+    const tokens = Object.entries(VOCAB_DATA).map(([token, id]) => ({
+      token, id,
+      freq: FREQ_DATA[token] || 0,
+      type: getType(token),
+    }));
+
+    const maxFreq = Math.max(...tokens.map(t => t.freq));
+    const totalTokens = tokens.reduce((a, t) => a + t.freq, 0);
+
+    // ============================================================
+    // STATS
+    // ============================================================
+    const statsEl = document.getElementById('stats-grid');
+    const stats = [
+      { value: tokens.length, label: 'Vocab Size' },
+      { value: totalTokens.toLocaleString(), label: 'Total Tokens' },
+      { value: tokens.filter(t => t.type === 'word').length, label: 'Unique Words' },
+      { value: tokens.filter(t => t.type === 'special').length, label: 'Special Tokens' },
+    ];
+    statsEl.innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-value">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+
+    // ============================================================
+    // BAR CHART — top 15 (excluding special tokens)
+    // ============================================================
+    const chartEl = document.getElementById('bar-chart');
+    const top15 = [...tokens]
+      .filter(t => t.type !== 'special')
+      .sort((a, b) => b.freq - a.freq)
+      .slice(0, 15);
+    const chartMax = top15[0]?.freq || 1;
+
+    chartEl.innerHTML = top15.map(t => `
+      <div class="bar-row">
+        <div class="bar-token">${escHtml(t.token)}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: ${(t.freq / chartMax * 100).toFixed(1)}%"></div>
+        </div>
+        <div class="bar-count">${t.freq.toLocaleString()}</div>
+      </div>
+    `).join('');
+
+    // ============================================================
+    // RENDER TOKEN GRID
+    // ============================================================
+    const gridEl = document.getElementById('token-grid');
+    let currentFilter = 'all';
+    let currentSort = 'freq';
+    let searchQuery = '';
+
+    function renderGrid() {
+      let filtered = tokens.filter(t => {
+        if (currentFilter !== 'all' && t.type !== currentFilter) return false;
+        if (searchQuery && !t.token.toLowerCase().includes(searchQuery.toLowerCase())
+            && !String(t.id).includes(searchQuery)) return false;
+        return true;
+      });
+
+      if (currentSort === 'freq') filtered.sort((a, b) => b.freq - a.freq || a.id - b.id);
+      else if (currentSort === 'alpha') filtered.sort((a, b) => a.token.localeCompare(b.token));
+      else if (currentSort === 'id') filtered.sort((a, b) => a.id - b.id);
+
+      if (filtered.length === 0) {
+        gridEl.innerHTML = '<div class="no-results">No tokens found 😕</div>';
+        return;
+      }
+
+      gridEl.innerHTML = filtered.map((t, i) => `
+        <div class="token-card type-${t.type}" onclick="showModal('${escAttr(t.token)}')"
+             style="animation-delay: ${Math.min(i * 15, 500)}ms">
+          <div class="token-text">${escHtml(t.token)}</div>
+          <div class="token-meta">
+            <span class="token-id">ID ${t.id}</span>
+            <span class="token-freq">${t.freq.toLocaleString()}×</span>
+          </div>
+          <div class="freq-bar-container">
+            <div class="freq-bar" style="width: ${(t.freq / maxFreq * 100).toFixed(1)}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderGrid();
+
+    // ============================================================
+    // INTERACTIONS
+    // ============================================================
+    // Search
+    document.getElementById('search').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderGrid();
+    });
+
+    // Filter buttons
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderGrid();
+      });
+    });
+
+    // Sort buttons
+    document.querySelectorAll('[data-sort]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSort = btn.dataset.sort;
+        renderGrid();
+      });
+    });
+
+    // Modal
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalEl = document.getElementById('modal');
+
+    function showModal(tokenStr) {
+      const t = tokens.find(x => x.token === tokenStr);
+      if (!t) return;
+      const pct = (t.freq / totalTokens * 100).toFixed(2);
+      const rank = [...tokens].sort((a, b) => b.freq - a.freq).findIndex(x => x.token === t.token) + 1;
+
+      modalEl.innerHTML = `
+        <div class="modal-token" style="color: ${{special:'var(--special)',punct:'var(--punct)',word:'var(--accent3)'}[t.type]}">${escHtml(t.token)}</div>
+        <div style="color:var(--text-dim);font-size:0.85rem;margin-bottom:0.5rem">${t.type.toUpperCase()} TOKEN</div>
+        <div class="modal-details">
+          <div class="detail-item">
+            <div class="detail-value">${t.id}</div>
+            <div class="detail-label">Token ID</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-value">${t.freq.toLocaleString()}</div>
+            <div class="detail-label">Frequency</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-value">#${rank}</div>
+            <div class="detail-label">Rank</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-value">${pct}%</div>
+            <div class="detail-label">Coverage</div>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+      `;
+      modalOverlay.classList.add('active');
+    }
+
+    function closeModal() { modalOverlay.classList.remove('active'); }
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // Helpers
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+  </script>
+</body>
+</html>
