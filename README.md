@@ -5,7 +5,7 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
 ## Corpus
 
 - **Bahasa**: High Valyrian (constructed language dari universe Game of Thrones)
-- **Sumber**: Teks naratif, dialog, puisi, dan prosa yang dikumpulkan secara mandiri
+- **Sumber**: [High Valyrian Corpus from Game of Thrones – Kaggle](https://www.kaggle.com/datasets/viceriomarinowski/high-valyrian-corpus-from-game-of-thrones?resource=download)
 - **Ukuran**: ~14.000+ kata, 497 unique words
 
 ## Pipeline
@@ -25,14 +25,18 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
   - Collapse blank lines & deduplikasi baris berurutan
   - Lowercase semua teks
 
-### 3. Custom Tokenizer
+### 3. Custom Tokenizer ✅
 - File: `tokenizer.py`
-- _TODO_
+- Word-level tokenizer (custom, tanpa library siap pakai)
+- Punctuation dipisah sebagai token tersendiri
+- Setiap baris dibungkus `<BOS>` dan `<EOS>`
+- Fungsi: `tokenize()`, `encode()`, `decode()`
 
-### 4. Vocabulary & Token ID Mapping
-- File: `vocab.json`
-- File: `encoded_tokens.csv`
-- _TODO_
+### 4. Vocabulary & Token ID Mapping ✅
+- File: `vocab.json` — 299 tokens (4 special + 295 unique words)
+- File: `encoded_tokens.csv` — 666 baris, 18.125 total tokens
+- Special tokens: `<PAD>`, `<UNK>`, `<BOS>`, `<EOS>`
+- Vocab diurutkan berdasarkan frekuensi (descending)
 
 ### 5. Embedding
 - File: `embedding.npy`
@@ -48,9 +52,9 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
 |---|---|
 | `raw_corpus.txt` | ✅ |
 | `cleaned_corpus.txt` | ✅ |
-| `tokenizer.py` | ⬜ |
-| `vocab.json` | ⬜ |
-| `encoded_tokens.csv` | ⬜ |
+| `tokenizer.py` | ✅ |
+| `vocab.json` | ✅ |
+| `encoded_tokens.csv` | ✅ |
 | `embedding.npy` | ⬜ |
 | `analysis.ipynb` | ⬜ |
 | `README.md` | ✅ |
@@ -60,4 +64,7 @@ Tugas individu NLP Week 3: membangun pipeline pemrosesan teks dari awal, mulai d
 ```bash
 # Text cleaning
 python clean_corpus.py
+
+# Tokenizer + vocab + encoding
+python tokenizer.py
 ```
